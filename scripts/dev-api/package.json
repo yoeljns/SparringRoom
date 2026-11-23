@@ -1,0 +1,8 @@
+{
+  "name": "dayson-dev-api",
+  "private": true,
+  "type": "module",
+  "description": "LOCAL DEVELOPMENT ONLY: minimal emulation of the Supabase REST, auth and storage endpoints on top of a plain Postgres, so the web app can be run and tested without a Supabase project.",
+  "scripts": { "start": "node server.mjs" },
+  "dependencies": { "pg": "^8.13.1" }
+}

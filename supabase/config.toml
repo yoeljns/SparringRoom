@@ -1,0 +1,8 @@
+# Supabase CLI project file. Link a project with: supabase link --project-ref <ref>
+project_id = "dayson-inventory"
+
+[db]
+major_version = 16
+
+[db.seed]
+enabled = false

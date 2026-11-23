@@ -909,6 +909,25 @@ begin
   update alert set acked_by = app.uid(), acked_at = now() where id = p_id and acked_at is null;
 end $$;
 
+-- Real-time alert delivery (§12.5): the notifier reads unsent alerts and marks them sent.
+create or replace function public.rpc_alerts_mark_sent(p_ids uuid[]) returns int
+language plpgsql security definer set search_path = public, app as $$
+declare v_n int;
+begin
+  perform app.require_role('owner','ops_manager');
+  update alert set sent_at = now() where id = any (p_ids) and sent_at is null;
+  get diagnostics v_n = row_count;
+  return v_n;
+end $$;
+
+-- Who receives the digest and real-time pushes: active owners and ops managers.
+create or replace function public.rpc_alert_recipients() returns jsonb
+language sql stable security definer set search_path = public, app as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', id, 'full_name', full_name, 'role', role, 'email', email,
+                                                'telegram_chat_id', telegram_chat_id)), '[]'::jsonb)
+    from app_user where active and role in ('owner','ops_manager') and app.user_role() in ('owner','ops_manager','system')
+$$;
+
 -- ---------------------------------------------------------------------------
 -- KPIs, daily digest (§12.4) and owner dashboard (§12.6)
 -- ---------------------------------------------------------------------------
