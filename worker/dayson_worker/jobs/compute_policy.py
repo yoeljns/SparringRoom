@@ -12,7 +12,7 @@ import pandas as pd
 
 from .. import db
 from ..core.demand_history import weekly_matrix
-from ..core.policy import compute_policies, order_quantity, select_policy
+from ..core.policy import compute_policies, order_quantity, select_policy, _lcm_float
 from ._common import business_date, monday, load_items, load_weekly_history, load_lanes, load_forecast
 
 SD_WEEKS = 52          # weekly demand variability is measured on the last 52 weeks
@@ -102,21 +102,26 @@ def build(conn, as_of, lead_time_override: dict | None = None) -> tuple[pd.DataF
             truck_qty = math.floor(max_kg / kg + 1e-9) * upp
         moq = float(lane["moq"] or 0.0)
         mult = float(lane["order_multiple"] or 0.0)
-        q0 = max(economic, moq)
+        # whole pallets and the order multiple together only when a common multiple of at most
+        # 5 pallets exists; otherwise the supplier's order multiple decides
+        pallet_unit = upp
+        if mult > 0 and _lcm_float(upp, mult) > 5 * max(upp, mult) + 1e-9:
+            pallet_unit = 0.0
+        common = dict(weekly_demand=float(r["d"]), economic_qty=float(economic), moq=moq, pallet_qty=pallet_unit,
+                      order_multiple=mult, unit_cost=cost, holding_rate=holding_rate,
+                      expiry_controlled=bool(it["lot_expiry_controlled"]),
+                      shelf_life_days=float(it["shelf_life_days"]) if pd.notna(it["shelf_life_days"]) else None,
+                      mrsl_days=float((mrsl.get(item_id) or {}).get("value") or 0))
         freight_saved = 0.0
         if truck_qty:                                    # freight paid for the empty part of the last truck
-            part = q0 % truck_qty
+            part = order_quantity(**common)["rounded"] % truck_qty
             freight_saved = freight_eur * ((truck_qty - part) / truck_qty if part > 1e-9 else 0.0)
-        oq = order_quantity(weekly_demand=float(r["d"]), economic_qty=float(economic), moq=moq, pallet_qty=upp,
-                            order_multiple=mult, truck_qty=truck_qty, unit_cost=cost, holding_rate=holding_rate,
-                            freight_saved_per_truck=freight_saved,
-                            expiry_controlled=bool(it["lot_expiry_controlled"]),
-                            shelf_life_days=float(it["shelf_life_days"]) if pd.notna(it["shelf_life_days"]) else None,
-                            mrsl_days=float((mrsl.get(item_id) or {}).get("value") or 0))
+        oq = order_quantity(**common, truck_qty=truck_qty, freight_saved_per_truck=freight_saved)
         qty = oq.pop("qty")
         extra[item_id] = {"order_qty": qty, "steps": {
             **oq, "economic_qty": economic, "economic_qty_basis": "forecast demand of one review cycle",
             "moq": moq, "order_multiple": mult, "units_per_pallet": upp, "truck_qty": truck_qty,
+            "rounding": "pallets and order multiple" if pallet_unit and mult else ("order multiple" if mult else "pallets"),
             "pallet_kg": kg, "truck_max_kg": max_kg, "unit_cost_eur": cost, "holding_cost_pct_year": holding["value"],
             "freight_eur_per_truck": freight["value"], "shelf_life_days": it["shelf_life_days"],
             "mrsl_days": (mrsl.get(item_id) or {}).get("value"), "mrsl_level": (mrsl.get(item_id) or {}).get("level")}}

@@ -1,56 +1,58 @@
-"""Nightly: campaign intensity measures and the per-family uplift model (§9.4)."""
+"""uplift_model (§9.4): intensity measures and the per-family uplift model.
+
+Intensity per item and week comes from demand_history: free-goods ratio and the share of
+volume sold under a campaign (discount depth needs invoice prices against list and is taken
+as 0 until price lists are loaded). A family is fitted once it has enough campaign weeks; the
+coefficients (uplift b, lag terms = pull-forward, cross term = cannibalisation) are reported in
+job_run.stats. The library priors used for new campaigns are updated by campaign_review.
+"""
 from __future__ import annotations
 
 from datetime import timedelta
 
+import pandas as pd
+
 from .. import db
 from ..core.campaign import intensity_measures, combined_intensity, fit_uplift_model
-from ._common import today, monday
+from ..core.demand_history import weekly_matrix
+from ._common import business_date, monday, load_items
 
-HISTORY_WEEKS = 104
+MIN_CAMPAIGN_ROWS = 26
+HISTORY_WEEKS = 156
 
 
 def run(conn, as_of=None) -> dict:
-    as_of = as_of or today()
-    since = monday(as_of) - timedelta(weeks=HISTORY_WEEKS)
-    # SCHEMA: so_line(list_eur*, net_eur*) — line values against list and net of all terms
+    as_of = business_date(conn, as_of)
+    week0 = monday(as_of)
     lines = db.query_df(conn, """
-        select l.item_id, date_trunc('week', l.shipped_at)::date as week,
-               case when l.line_type = 'free' then 0 else l.shipped_qty end as qty_paid,
-               case when l.line_type = 'free' then l.shipped_qty else 0 end as qty_free,
-               coalesce(l.list_eur, 0) as list_eur, coalesce(l.net_eur, 0) as net_eur, o.campaign_id
-          from so_line l join sales_order o on o.id = l.sales_order_id
-         where l.shipped_qty > 0 and l.shipped_at >= %s""", [since])
+        select item_id, week, campaign_id, sum(qty_paid) as qty_paid, sum(qty_free) as qty_free
+          from demand_history where week < %s and week >= %s group by 1, 2, 3""",
+                        [week0, week0 - timedelta(weeks=HISTORY_WEEKS)])
     if lines.empty:
-        return {"skipped": "no shipped lines"}
-    active = db.query_df(conn, "select distinct campaign_id, item_id, week from campaign_forecast where week >= %s",
-                         [since])
-    m = intensity_measures(lines, active)
+        return {"skipped": "no demand history"}
+    lines["list_eur"] = 0.0
+    lines["net_eur"] = 0.0
+    m = intensity_measures(lines)
     m["intensity"] = combined_intensity(m)
-    # SCHEMA: campaign_intensity(item_id, week, discount_depth, free_ratio, campaign_share, n_campaigns)*  (not in §3)
-    db.execute(conn, "delete from campaign_intensity where week >= %s", [since])
-    db.insert_rows(conn, "campaign_intensity",
-                   m[["item_id", "week", "discount_depth", "free_ratio", "campaign_share", "n_campaigns"]].to_dict("records"))
-    demand = lines.assign(demand=lines["qty_paid"] + lines["qty_free"]).groupby(["item_id", "week"], as_index=False)["demand"].sum()
-    # baseline = stored forecast base for the same weeks (demand under standard terms)
-    base = db.query_df(conn, """
-        select distinct on (f.item_id, f.week) f.item_id, f.week, f.base as baseline
-          from forecast f join forecast_run r on r.id = f.run_id
-         where f.level = 'item' and f.bucket = 'week' and f.week >= %s and f.week < %s
-         order by f.item_id, f.week, r.created_at""", [since, monday(as_of)])
-    items = db.query_df(conn, "select id as item_id, family_id, coalesce(attributes->>'colour', attributes->>'size') "
-                              "as group_id from item")
-    d = demand.merge(base, on=["item_id", "week"]).merge(m[["item_id", "week", "intensity"]], on=["item_id", "week"],
-                                                         how="left").merge(items, on="item_id")
-    d["intensity"] = d["intensity"].fillna(0.0)
-    fitted = {}
-    for fam, g in d.groupby("family_id"):
-        if len(g) < 60 or g["intensity"].gt(0).sum() < 8:
+    items = load_items(conn)
+    total = lines.groupby(["item_id", "week"], as_index=False)[["qty_paid", "qty_free"]].sum()
+    wide = weekly_matrix(total, "total", week0)
+    baseline = wide.T.rolling(13, center=True, min_periods=4).median().T      # campaign-robust local level
+    inten = m.assign(week=pd.to_datetime(m["week"])).pivot(index="item_id", columns="week", values="intensity") \
+        .reindex(index=wide.index, columns=wide.columns).fillna(0.0)
+    fitted, skipped = {}, {}
+    for fam, ids in items.reindex(wide.index).groupby("family_code").groups.items():
+        ids = list(ids)
+        n = int((inten.loc[ids] > 0).to_numpy().sum())
+        if n < MIN_CAMPAIGN_ROWS:
+            skipped[fam] = f"{n} item-weeks with campaign intensity (needs {MIN_CAMPAIGN_ROWS})"
             continue
-        model = fit_uplift_model(g)
-        fitted[str(fam)] = {"b": model.b, "lags": model.lags, "cross": model.cross, "n_obs": model.n_obs}
-    if fitted:
-        # SCHEMA: uplift_model_fit(family_id, as_of, coefficients jsonb)*  (not in §3)
-        db.insert_rows(conn, "uplift_model_fit", [{"family_id": f, "as_of": as_of, "coefficients": c}
-                                                  for f, c in fitted.items()])
-    return {"intensity_rows": int(len(m)), "families_fitted": len(fitted)}
+        df = pd.DataFrame({"demand": wide.loc[ids].stack(), "baseline": baseline.loc[ids].stack(),
+                           "intensity": inten.loc[ids].stack()}).reset_index()
+        df.columns = ["item_id", "week", "demand", "baseline", "intensity"]
+        df["group_id"] = df["item_id"].map(items["group_id"])
+        model = fit_uplift_model(df.dropna())
+        fitted[fam] = {"b": model.b, "lags": model.lags, "cross": model.cross, "n_obs": model.n_obs,
+                       "campaign_item_weeks": n}
+    return {"families_fitted": len(fitted), "models": fitted, "skipped": skipped,
+            "intensity_rows": int((m["intensity"] > 0).sum())}

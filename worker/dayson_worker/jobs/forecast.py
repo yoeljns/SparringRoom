@@ -108,6 +108,8 @@ def backtest(hist: pd.DataFrame, items: pd.DataFrame, week0, lag_by_family: dict
         lag = int(min(max(1, lag_by_family.get(fam, 1)), HOLDOUT_WEEKS - 3))
         cols = sku.columns[steps >= lag]
         a, s, n = actual.loc[ids, cols].to_numpy(), sku.loc[ids, cols].to_numpy(), naive.loc[ids, cols].to_numpy()
+        if not np.abs(a).sum() > 0:                      # nothing sold in the hold-out: no error measure
+            continue
         fva = acc.forecast_value_added(a, n, s, s)
         fam_rows.append({"family": fam, "lag_weeks": lag, "n": int(a.size), "wape": acc.wape(a, s),
                          "bias": acc.bias(a, s), "wape_naive": fva["wape_naive"], "wape_stat": fva["wape_statistical"],
@@ -115,6 +117,8 @@ def backtest(hist: pd.DataFrame, items: pd.DataFrame, week0, lag_by_family: dict
         for i in ids:
             if item_nodes.loc[item_nodes["item_id"] == i, "pattern"].iloc[0] in ("intermittent", "lumpy"):
                 m = acc.mase(actual.loc[i, cols], sku.loc[i, cols], wide_items.loc[i].to_numpy())
+                if not np.isfinite(m):
+                    continue
                 item_rows.append({"family": fam, "item_id": i, "lag_weeks": lag, "n": len(cols), "mase": m})
     return {"family": fam_rows, "items": item_rows, "cutoff": cutoff}
 

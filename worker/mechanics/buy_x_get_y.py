@@ -74,12 +74,13 @@ def demand_effect(baseline, scope, params, library) -> list[dict]:
     ratio = params["free_qty"] / params["buy_qty"]
     idx = {(r["item_id"], r["week"]): r for r in rows}
     window = set(scope.get("weeks") or [])
+    share = float(scope.get("eligible_share", 1.0))
     scoped = set(scope["item_ids"]) if scope.get("item_ids") else {k[0] for k in base}
     extra = {}
     for (item, week), q in base.items():
         if week not in window or item not in scoped:
             continue
-        paid = q + idx.get((item, week), {}).get("uplift", 0.0)
+        paid = q * share + idx.get((item, week), {}).get("uplift", 0.0)     # eligible buyers only
         free_item = item if params["free_item"] == "same" else params["free_item"]
         extra[(free_item, week)] = extra.get((free_item, week), 0.0) + paid * ratio
     for (item, week), q in extra.items():

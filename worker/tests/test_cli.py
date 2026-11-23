@@ -6,8 +6,9 @@ import pytest
 from dayson_worker import cli
 
 SPEC_ORDER = ["build_demand_history", "measure_lead_times", "classify", "forecast", "compute_policy", "suggest"]
-ALL_JOBS = SPEC_ORDER + ["expiry_bands", "dealer_estimate", "campaign_review", "uplift_model", "ddmrp_shadow",
-                         "vmi_proposals", "load_planner", "simulate", "rebuild_check"]
+ALL_JOBS = SPEC_ORDER + ["expiry_bands", "slow_stock", "campaign_tick", "dealer_estimate", "campaign_review",
+                         "uplift_model", "ddmrp_shadow", "vmi_proposals", "load_planner", "count_tasks",
+                         "reconciliation", "simulate", "rebuild_check", "nightly_checks"]
 
 
 class FakeConn:
@@ -32,8 +33,8 @@ class FakeDb:
     def finish_job_run(self, conn, run_id, status, stats=None, error=None):
         self.runs[run_id][1] = status
 
-    def raise_alert(self, conn, rule, severity, entity, payload):
-        self.alerts.append((rule, severity, entity, payload))
+    def job_failed(self, conn, job, error):
+        self.alerts.append((job, error))
 
 
 def test_every_job_module_exists_with_a_run_function():
@@ -68,12 +69,13 @@ def test_failed_job_is_caught_recorded_alerted_and_later_jobs_continue():
     assert res["forecast"]["status"] == "failed" and "boom" in res["forecast"]["error"]
     assert res["compute_policy"]["status"] == "skipped" and res["suggest"]["status"] == "skipped"
     assert res["ddmrp_shadow"]["status"] == "skipped"
-    for ok in ("build_demand_history", "measure_lead_times", "classify", "expiry_bands", "dealer_estimate",
-               "campaign_review", "uplift_model", "vmi_proposals", "load_planner", "rebuild_check"):
+    for ok in ("build_demand_history", "measure_lead_times", "classify", "expiry_bands", "slow_stock", "campaign_tick",
+               "dealer_estimate", "campaign_review", "uplift_model", "vmi_proposals", "load_planner", "count_tasks",
+               "reconciliation", "rebuild_check", "nightly_checks"):
         assert res[ok]["status"] == "ok"
     assert "compute_policy" not in called and called.index("expiry_bands") > called.index("forecast")
     assert conn.rollbacks == 1
-    assert [a[0] for a in db.alerts] == ["worker_job_failed"] and db.alerts[0][2] == "job:forecast"
+    assert [a[0] for a in db.alerts] == ["forecast"] and "boom" in db.alerts[0][1]     # rpc_job_failed, once
     assert dict(map(tuple, db.runs))["forecast"] == "failed" and len(db.runs) == len(cli.NIGHTLY)
 
 

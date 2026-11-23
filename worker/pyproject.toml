@@ -29,4 +29,7 @@ packages = ["dayson_worker", "mechanics"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["slow: takes more than 60 s"]
+markers = [
+    "slow: takes more than 60 s",
+    "db: needs DATABASE_URL pointing at a freshly reset and seeded database",
+]

@@ -351,6 +351,11 @@ def run_forecast(history: pd.DataFrame, items: pd.DataFrame, as_of_week,
 
     base_raw = base.copy()
     base = reconcile_mint(base, S_df, tags, reconcile) if reconcile else make_coherent(base, S_df)  # None = bottom-up
+    # reconciliation must not invent demand for a series without history, nor change a contract schedule
+    pinned = [n for n in routes.index[routes.isin(["zero", "contract_schedule"])] if nodes.at[n, "is_bottom"]]
+    if pinned and reconcile:
+        base.loc[pinned] = base_raw.loc[pinned].to_numpy()
+        base = make_coherent(base, S_df)
 
     bottom_ids = [c for c in S_df.columns if c != "unique_id"]
     S = S_df[bottom_ids].to_numpy(float)

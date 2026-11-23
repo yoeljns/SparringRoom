@@ -1,0 +1,25 @@
+# Nightly planning run (spec §8.1): 22:00 UTC = 01:00 Istanbul.
+name: nightly-planning
+on:
+  schedule:
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+jobs:
+  nightly:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run python -m dayson_worker.cli nightly
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Process queued truck plans and simulations
+        run: uv run python -m dayson_worker.cli serve --once
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

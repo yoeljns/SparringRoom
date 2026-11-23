@@ -228,9 +228,11 @@ language sql stable as $$
       or coalesce((p_rule->>'all')::boolean, false)
       or (p_rule ? 'item_ids' and p_rule->'item_ids' @> to_jsonb(p_item::text))
       or (p_rule ? 'skus' and p_rule->'skus' @> to_jsonb((select sku from public.item where id = p_item)))
-      or (p_rule ? 'family' and exists (select 1 from public.item i join public.item_family f on f.id = i.family_id
-                                         where i.id = p_item and f.code = p_rule->>'family'))
-      or (p_rule ? 'attributes' and exists (select 1 from public.item i where i.id = p_item and i.attributes @> (p_rule->'attributes')))
+      or ((p_rule ? 'family' or p_rule ? 'family_code') and exists (
+            select 1 from public.item i join public.item_family f on f.id = i.family_id
+             where i.id = p_item and f.code = coalesce(p_rule->>'family', p_rule->>'family_code')))
+      or ((p_rule ? 'attributes' or p_rule ? 'attrs') and exists (
+            select 1 from public.item i where i.id = p_item and i.attributes @> coalesce(p_rule->'attributes', p_rule->'attrs')))
 $$;
 
 create or replace function app.rule_matches_party(p_rule jsonb, p_party uuid) returns boolean
