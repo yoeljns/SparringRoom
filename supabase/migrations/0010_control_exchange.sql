@@ -1134,6 +1134,12 @@ begin
   return (select to_jsonb(u) from app_user u where u.id = p_user);
 end $$;
 
+-- True while no application user exists yet: the login screen then offers owner registration.
+create or replace function public.rpc_bootstrap_needed() returns boolean
+language sql stable security definer set search_path = public, app as $$
+  select not exists (select 1 from app_user)
+$$;
+
 -- Storage buckets for the file exchange (§2).
 insert into storage.buckets (id, name, public) values ('logo-in', 'logo-in', false), ('logo-out', 'logo-out', false)
 on conflict (id) do nothing;
