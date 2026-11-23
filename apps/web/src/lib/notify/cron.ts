@@ -3,6 +3,7 @@
  * implementation, so they can be tested without a network.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { loadDigest } from './digest-fallback';
 import { renderAlerts, renderDigest, type AlertRow } from './render';
 import { deliver, type DeliveryReport, type NotifyEnv, type Recipient } from './send';
 
@@ -19,6 +20,8 @@ export interface DigestRun {
   job: 'digest';
   error?: string;
   date?: unknown;
+  /** True when rpc_digest failed with the known array bug and the web fallback built the digest. */
+  fallback?: boolean;
   flagged?: string[];
   recipients_error?: string;
   delivery?: DeliveryReport;
@@ -26,13 +29,13 @@ export interface DigestRun {
 
 /** rpc_digest -> Turkish digest with a link per item -> email and Telegram. */
 export async function runDigest(db: SupabaseClient, env: NotifyEnv, appUrl: string, fetchImpl: Fetch): Promise<DigestRun> {
-  const { data, error } = await db.rpc('rpc_digest');
-  if (error) return { ok: false, job: 'digest', error: error.message };
+  const { data, error, fallback } = await loadDigest(db);
+  if (error || !data) return { ok: false, job: 'digest', error: error ?? 'no digest' };
   const message = renderDigest(data, appUrl);
   const rec = await recipients(db);
   const delivery = await deliver(message, rec.list, env, fetchImpl);
   return {
-    ok: delivery.email.errors.length + delivery.telegram.errors.length === 0, job: 'digest', date: (data as { date?: unknown } | null)?.date,
+    ok: delivery.email.errors.length + delivery.telegram.errors.length === 0, job: 'digest', date: data.date, ...(fallback ? { fallback: true } : {}),
     flagged: message.sections.filter((s) => s.flagged).map((s) => s.key), recipients_error: rec.error, delivery,
   };
 }

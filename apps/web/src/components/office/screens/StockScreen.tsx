@@ -163,7 +163,7 @@ function Lots() {
     }
     return (lots.data ?? [])
       .filter((l) => !band || l.band === band)
-      .map((l) => ({ ...l, sku: lk.get('item', l.item_id)?.sku ?? '', item_name: lk.get('item', l.item_id)?.name ?? '', qty_base: qty.get(l.id)?.q ?? 0, pallets: qty.get(l.id)?.p ?? 0 }));
+      .map((l): Row => ({ ...l, sku: lk.get('item', l.item_id)?.sku ?? '', item_name: lk.get('item', l.item_id)?.name ?? '', qty_base: qty.get(l.id)?.q ?? 0, pallets: qty.get(l.id)?.p ?? 0 }));
   }, [lots.data, stock.data, lk, band]);
   return (
     <>

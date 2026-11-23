@@ -28,9 +28,12 @@ export function formatCell(type: ColType | undefined, v: unknown): ReactNode {
     case 'pct': return fPct(v);
     case 'ratio': return fRatio(v);
     case 'eur': return fEur(v);
-    case 'json': return <code className="block max-w-xs truncate text-xs" title={JSON.stringify(v)}>{JSON.stringify(v)}</code>;
+    case 'json': return <code className="block max-w-[16rem] truncate text-xs" title={JSON.stringify(v)}>{JSON.stringify(v)}</code>;
     case 'mono': return <code className="text-xs">{String(v)}</code>;
-    default: return String(v);
+    default: {
+      const text = String(v);
+      return text.length > 28 ? <span className="block max-w-[20rem] truncate" title={text}>{text}</span> : text;
+    }
   }
 }
 
@@ -114,7 +117,7 @@ export function DataTable<R extends Row = Row>({
       {error ? <div className="mb-3"><Notice>{error}</Notice></div> : null}
       {rows === undefined && loading ? <Loading /> : shown.length === 0 ? (error ? null : <Empty>{empty}</Empty>) : (
         <div className={`overflow-x-auto rounded-md border border-line ${loading ? 'opacity-60' : ''}`}>
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-[13px]">
             <thead>
               <tr className="bg-ink text-left text-xs uppercase tracking-wide text-paper">
                 {columns.map((c) => (
@@ -136,13 +139,13 @@ export function DataTable<R extends Row = Row>({
                   className={`border-t border-line odd:bg-paper even:bg-surface/60 ${onRowClick ? 'cursor-pointer hover:bg-brand-soft/50' : ''}`}
                 >
                   {columns.map((c) => (
-                    <td key={c.key} className={`px-3 py-2 align-top ${RIGHT.includes(c.type ?? 'text') ? 'text-right tabular-nums' : ''}`}>
+                    <td key={c.key} className={`whitespace-nowrap px-3 py-2 align-middle ${RIGHT.includes(c.type ?? 'text') ? 'text-right tabular-nums' : ''}`}>
                       {c.render ? c.render(row) : formatCell(c.type, row[c.key])}
                     </td>
                   ))}
                   {actions ? (
-                    <td className="whitespace-nowrap px-3 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
-                      <span className="inline-flex gap-1">{actions(row)}</span>
+                    <td className="whitespace-nowrap px-3 py-1 text-right align-middle" onClick={(e) => e.stopPropagation()}>
+                      <span className="inline-flex items-center gap-1">{actions(row)}</span>
                     </td>
                   ) : null}
                 </tr>

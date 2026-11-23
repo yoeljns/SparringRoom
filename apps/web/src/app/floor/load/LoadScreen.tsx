@@ -49,6 +49,8 @@ export function LoadScreen() {
   const [weightRefused, setWeightRefused] = useState(false);
   const [override, setOverride] = useState<ApprovalRow | null>(null);
   const [closed, setClosed] = useState<CloseTruckResult | 'queued' | null>(null);
+  /** Refusal of the close itself, shown next to the close button. */
+  const [closeMsg, setCloseMsg] = useState<Notice | null>(null);
 
   const shipments = useMemo(() => shipmentsQuery.data ?? [], [shipmentsQuery.data]);
   const shipment = shipments.find((s) => s.id === shipmentId) ?? null;
@@ -73,6 +75,7 @@ export function LoadScreen() {
     setWeightRefused(false);
     setOverride(null);
     setClosed(null);
+    setCloseMsg(null);
   };
 
   const settleLoad = (serial: string) => (result: FloorResult<TruckStatus>) => {
@@ -132,6 +135,7 @@ export function LoadScreen() {
   const close = async () => {
     if (!shipmentId) return;
     setBusy(true);
+    setCloseMsg(null);
     const result = await run<CloseTruckResult>(
       'close_truck',
       { shipment_id: shipmentId, e_irsaliye_no: eirsValue.trim(), seal_no: seal.trim() || undefined },
@@ -146,7 +150,7 @@ export function LoadScreen() {
       setClosed('queued');
     } else {
       if (result.code === 'WEIGHT_OUT_OF_WINDOW') setWeightRefused(true);
-      setMsg(notice('bad', result.text));
+      setCloseMsg(notice('bad', result.text));
       statusQuery.reload();
     }
   };
@@ -337,6 +341,7 @@ export function LoadScreen() {
               onChange={setOverride}
             />
           ) : null}
+          <NoticeBanner value={closeMsg} testid="close-notice" />
           <BlockUntilDrained>
             {closeProblem ? <p className="text-base font-bold text-brand-dark">{closeProblem}</p> : null}
             <BigButton tone="danger" onClick={() => void close()} disabled={busy || !!closeProblem} data-testid="close-truck">

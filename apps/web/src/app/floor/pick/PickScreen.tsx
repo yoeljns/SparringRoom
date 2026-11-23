@@ -353,7 +353,7 @@ export function PickScreen() {
             ]}
           />
           {isCarton && lane ? (
-            <div className="grid grid-cols-[1fr_1.4fr] gap-2">
+            <div className="flex flex-col gap-2">
               <TextField label={t('floor.common.qty')} value={qty} onChange={setQty} numeric testid="pick-qty" />
               <ChoiceGrid
                 options={[

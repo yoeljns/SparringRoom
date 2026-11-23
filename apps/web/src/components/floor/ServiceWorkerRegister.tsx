@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { FLOOR_SCREENS } from '@dayson/domain';
 
 /** Pages cached for offline use as soon as the worker is active. */
-export const FLOOR_SHELL_URLS = ['/floor', '/floor/outbox', ...FLOOR_SCREENS.map((s) => `/floor/${s}`)];
+export const FLOOR_SHELL_URLS = ['/floor', '/floor/outbox', '/floor/dealer', ...FLOOR_SCREENS.map((s) => `/floor/${s}`)];
 
 /**
  * Registers the service worker with scope /floor only, so the back office is

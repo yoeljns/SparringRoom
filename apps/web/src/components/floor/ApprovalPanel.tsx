@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { t } from '@/i18n';
-import { requestApproval, type ApprovalRow } from '@/lib/data/floor-read';
+import { approvalById, requestApproval, type ApprovalRow } from '@/lib/data/floor-read';
 import { errorText } from '@/lib/floor/errors';
 import { getBrowserSupabase } from '@/lib/supabase/browser';
 import { BigButton, Card, ChoiceGrid, type Choice } from './ui';
@@ -41,9 +41,14 @@ export function ApprovalPanel({ type, payload, title, body, reasons, find, onReq
     onChangeRef.current = onChange;
   }, [find, onChange]);
 
+  /** Id of the request this panel follows, once it is known. */
+  const idRef = useRef<string | null>(null);
+
   const refresh = useCallback(async () => {
     try {
-      const next = await findRef.current(getBrowserSupabase());
+      const sb = getBrowserSupabase();
+      const next = idRef.current ? await approvalById(sb, idRef.current) : await findRef.current(sb);
+      if (next) idRef.current = next.id;
       setRow(next);
       setLoaded(true);
       onChangeRef.current?.(next);
@@ -70,6 +75,7 @@ export function ApprovalPanel({ type, payload, title, body, reasons, find, onReq
     setError(null);
     try {
       const id = await requestApproval(getBrowserSupabase(), type, payload, reason);
+      idRef.current = id;
       onRequested?.(id);
       await refresh();
     } catch (err) {

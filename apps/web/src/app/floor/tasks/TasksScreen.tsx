@@ -78,8 +78,11 @@ function describe(task: TaskRow): TaskItem {
   if (task.expiry_date) parts.push(`${t('floor.common.expiryShort')} ${formatIsoDate(task.expiry_date)}`);
   if (task.pallets) parts.push(t('floor.common.pallets', { n: fmtQty(task.pallets) }));
   let title = task.location_code ?? task.pallet_serial ?? task.sku ?? task.party_name ?? '—';
-  if (task.type === 'pick') title = `${task.location_code ?? '—'} → ${task.shipment_no ?? ''}`;
-  else if (task.to_location_code) title = `${task.location_code ?? '—'} → ${task.to_location_code}`;
+  if (task.type === 'pick') {
+    title = task.location_code ?? '—';
+    if (task.shipment_no) parts.unshift(task.shipment_no);
+  }
+  if (task.type !== 'pick' && task.to_location_code) title = `${task.location_code ?? '—'} → ${task.to_location_code}`;
   else if (task.type === 'qc') title = task.lot_no ? `${t('scan.field.lot')} ${task.lot_no}` : (task.sku ?? '—');
   else if (task.party_name && !task.location_code) title = task.party_name;
   if (task.party_name && task.type === 'pick') parts.push(task.party_name);
@@ -180,7 +183,7 @@ export function TasksScreen() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-mono text-lg font-extrabold leading-tight">{item.title}</span>
-                      <span className="block truncate text-sm font-medium text-ink-soft">{item.detail}</span>
+                      <span className="line-clamp-2 block text-sm font-medium leading-snug text-ink-soft">{item.detail}</span>
                     </span>
                     {item.badge ? <span className="shrink-0 rounded-full bg-warn-soft px-2 py-1 text-xs font-bold text-warn">{item.badge}</span> : null}
                     {item.href ? <Icon name="chevronRight" size={24} className="shrink-0 text-muted" /> : null}

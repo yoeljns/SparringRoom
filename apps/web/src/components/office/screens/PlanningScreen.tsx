@@ -367,7 +367,7 @@ function Suggestions() {
                 <li key={s.id} className="flex flex-wrap items-start justify-between gap-3 py-3" data-suggestion={s.id}>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold">{s.sku} · {s.item_name} <StatusBadge value={s.state} /> <Badge>{E(s.reason)}</Badge></p>
-                    <p className="mt-1 text-xl font-bold tabular-nums">{fNum(s.final_qty ?? s.qty, 0)} <span className="text-sm font-normal text-muted">({fNum(s.pallets, 1)} {T('ship.palletUnit')}) · {T('sug.release')} {fDate(s.release_date)} · {T('sug.need')} {fDate(s.need_date)}</span></p>
+                    <p className="mt-1 text-xl font-bold tabular-nums">{fNum(s.final_qty ?? s.qty, 0)} <span className="text-sm font-normal text-muted">({fNum(s.pallets, 2)} {T('ship.palletUnit')}) · {T('sug.release')} {fDate(s.release_date)} · {T('sug.need')} {fDate(s.need_date)}</span></p>
                     <p className="mt-0.5 text-xs text-muted" data-testid="suggestion-inputs">{inputsLine(s)}</p>
                     {s.edit_reason ? <p className="mt-0.5 text-xs text-warn">{T('sug.editReason')}: {s.edit_reason}</p> : null}
                   </div>

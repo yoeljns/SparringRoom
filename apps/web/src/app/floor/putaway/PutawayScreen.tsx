@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { palletSerialOf, type ClassifiedScan } from '@dayson/domain';
 import { ScanInput } from '@/components/floor/ScanInput';
-import { BigButton, Card, NoticeBanner, QueuedBanner, Row, StepList, notice, type Notice } from '@/components/floor/ui';
+import { BigButton, Card, NoticeBanner, Row, StepList, notice, type Notice } from '@/components/floor/ui';
 import { formatIsoDate, t, tDynamic } from '@/i18n';
 import type { MoveResult, PutawaySuggestion } from '@/lib/data/floor-cmd';
 import { scanLookup, type LookupPallet } from '@/lib/data/floor-read';
@@ -28,7 +28,7 @@ type Done = { status: 'done'; serial: string; to: string } | { status: 'queued';
 /** Yerleştirme (spec 5.3): scan the pallet, see the suggested lane, scan the lane it is put in. */
 export function PutawayScreen() {
   const floor = useFloor('putaway');
-  const { run, accept, refuse, online } = floor;
+  const { run, accept, refuse } = floor;
   const params = useSearchParams();
   const taskId = params.get('task');
   const presetSerial = params.get('pallet');
@@ -161,7 +161,6 @@ export function PutawayScreen() {
           </p>
         </div>
       ) : null}
-      {done?.status === 'queued' && !online ? <QueuedBanner /> : null}
 
       {target ? (
         <>

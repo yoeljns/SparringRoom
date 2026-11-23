@@ -113,6 +113,7 @@ export function ReceiveScreen() {
   const [approval, setApproval] = useState<ApprovalRow | null>(null);
   const [approvalId, setApprovalId] = useState<string | null>(null);
   const [received, setReceived] = useState(0);
+  const [receivedBase, setReceivedBase] = useState(0);
 
   const item = source ? sourceItem(source) : null;
   const docId = source?.kind === 'doc' ? source.doc.doc_id : null;
@@ -158,6 +159,7 @@ export function ReceiveScreen() {
     setNeedsApproval(false);
     setApproval(null);
     setReceived(0);
+    setReceivedBase(0);
     let stored: string | null = null;
     if (next.kind === 'doc') {
       try {
@@ -224,6 +226,7 @@ export function ReceiveScreen() {
     if (result.status === 'done') {
       setOutcome({ status: 'done', data: result.data });
       setReceived((n) => n + 1);
+      setReceivedBase((n) => n + Number(result.data.label?.qty_base ?? 0));
       setNeedsApproval(false);
       setMsg(null);
       return;
@@ -458,7 +461,7 @@ export function ReceiveScreen() {
         </p>
         {doc ? (
           <p className="text-sm font-bold tabular-nums text-ink-soft" data-testid="receive-progress">
-            {fmtQty(doc.received_qty)} / {fmtQty(doc.qty)} {uomLabel(doc.base_uom)}
+            {fmtQty(doc.received_qty + receivedBase)} / {fmtQty(doc.qty)} {uomLabel(doc.base_uom)}
           </p>
         ) : null}
       </div>
@@ -579,10 +582,8 @@ export function ReceiveScreen() {
           ) : (
             <TextField label={t('floor.receive.lotNoOptional')} value={form.lot_no} onChange={(v) => setForm((f) => ({ ...f, lot_no: v }))} testid="receive-lot" uppercase />
           )}
-          <div className="grid grid-cols-[1fr_2fr] gap-2">
-            <TextField label={t('floor.common.qty')} value={form.qty} onChange={(v) => setForm((f) => ({ ...f, qty: v }))} numeric testid="receive-qty" />
-            <ChoiceGrid options={uoms} value={form.uom} onChange={(v) => setForm((f) => ({ ...f, uom: v }))} label={t('floor.common.unit')} columns={3} />
-          </div>
+          <TextField label={t('floor.common.qty')} value={form.qty} onChange={(v) => setForm((f) => ({ ...f, qty: v }))} numeric testid="receive-qty" />
+          <ChoiceGrid options={uoms} value={form.uom} onChange={(v) => setForm((f) => ({ ...f, uom: v }))} label={t('floor.common.unit')} columns={3} />
           <TextField
             label={needsWeightCheck && weightNeeded ? t('floor.receive.weightFirst') : t('floor.receive.weightOptional')}
             value={form.kg}

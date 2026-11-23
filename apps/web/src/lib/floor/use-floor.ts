@@ -31,7 +31,15 @@ const loggers = new WeakMap<Outbox, ScanLogger>();
 function loggerFor(outbox: Outbox): ScanLogger {
   let logger = loggers.get(outbox);
   if (!logger) {
-    logger = createScanLogger(outbox, { deviceId: deviceId() });
+    // enqueue() only stores the batch; start a replay so the log leaves the device promptly.
+    const sender = {
+      enqueue: async (...args: Parameters<Outbox['enqueue']>) => {
+        const command = await outbox.enqueue(...args);
+        void outbox.drain();
+        return command;
+      },
+    };
+    logger = createScanLogger(sender, { deviceId: deviceId() });
     loggers.set(outbox, logger);
   }
   return logger;

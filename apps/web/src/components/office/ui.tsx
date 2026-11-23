@@ -98,7 +98,7 @@ export function Stat({ label, value, hint, href, onClick, tone }: {
   const body = (
     <>
       <span className="block text-xs font-medium text-muted">{label}</span>
-      <span className={`mt-1 block text-2xl font-bold tabular-nums ${colour}`}>{value}</span>
+      <span className={`mt-1 block whitespace-nowrap text-xl font-bold tabular-nums ${colour}`}>{value}</span>
       {hint ? <span className="mt-0.5 block text-xs text-muted">{hint}</span> : null}
     </>
   );

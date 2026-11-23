@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { palletSerialOf, type ClassifiedScan } from '@dayson/domain';
 import { LabelPrint } from '@/components/floor/LabelPrint';
 import { ScanFlow, type StepValidation } from '@/components/floor/ScanFlow';
-import { BigButton, Card, EmptyState, NoticeBanner, OfflineNotice, QueuedBanner, SectionTitle, TextField, notice, type Notice } from '@/components/floor/ui';
+import { BigButton, Card, EmptyState, NoticeBanner, OfflineNotice, SectionTitle, TextField, notice, type Notice } from '@/components/floor/ui';
 import { t } from '@/i18n';
 import type { LabelData, MoveResult } from '@/lib/data/floor-cmd';
 import { listConsolidation, scanLookup } from '@/lib/data/floor-read';
@@ -145,7 +145,6 @@ export function TransferScreen() {
           </p>
         </div>
       ) : null}
-      {outcome?.status === 'queued' && !floor.online ? <QueuedBanner /> : null}
       {outcome?.status === 'done' && outcome.cartonLabels && outcome.label ? (
         <Card testid="carton-labels">
           <p className="text-base font-extrabold">{t('floor.transfer.cartonTitle')}</p>

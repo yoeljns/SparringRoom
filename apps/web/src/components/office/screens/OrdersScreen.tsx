@@ -24,25 +24,27 @@ function lineTone(type: string): 'ok' | 'warn' | 'mute' {
 /** Items with family code and pack table, plus bundle contents, for the explode functions. */
 function useOrderMasters() {
   const lk = useLookups(['item', 'family', 'party', 'vehicle_type', 'bundle', 'market']);
-  const packs = useLoad(() => rows('uom_pack', (q) => q.limit(10000), 'item_id,level,qty_base,logo_unit'), []);
-  const blines = useLoad(() => rows('bundle_line', (q) => q.limit(5000)), []);
+  const packsLoad = useLoad(() => rows('uom_pack', (q) => q.limit(10000), 'item_id,level,qty_base,logo_unit'), []);
+  const blinesLoad = useLoad(() => rows('bundle_line', (q) => q.limit(5000)), []);
+  const packs = packsLoad.data;
+  const blines = blinesLoad.data;
   return useMemo(() => {
     const items = new Map<string, ItemInfo>();
     for (const it of lk.list('item')) {
       items.set(it.id, { id: it.id, sku: it.sku, base_uom: it.base_uom, family_code: lk.get('family', it.family_id)?.code ?? null, attributes: it.attributes ?? {}, packs: {} });
     }
     const unitMap = new Map<string, string>();
-    for (const p of packs.data ?? []) {
+    for (const p of packs ?? []) {
       const it = items.get(p.item_id);
       if (it) it.packs[p.level] = Number(p.qty_base);
       if (p.logo_unit) unitMap.set(`${p.item_id}|${p.logo_unit}`, p.level);
     }
     const bundles: BundleInfo[] = lk.list('bundle').filter((b) => b.active).map((b) => ({
       id: b.id, item_id: b.item_id, kind: b.kind,
-      lines: (blines.data ?? []).filter((l) => l.bundle_id === b.id).map((l) => ({ item_id: l.component_item_id, qty: Number(l.qty) })),
+      lines: (blines ?? []).filter((l) => l.bundle_id === b.id).map((l) => ({ item_id: l.component_item_id, qty: Number(l.qty) })),
     }));
-    return { lk, items, bundles, unitMap, ready: lk.ready && !!packs.data && !!blines.data };
-  }, [lk, packs.data, blines.data]);
+    return { lk, items, bundles, unitMap, ready: lk.ready && !!packs && !!blines };
+  }, [lk, packs, blines]);
 }
 
 function Basis({ promise }: { promise: Row | null }) {
@@ -220,7 +222,7 @@ function OrderEntry({ onSaved }: { onSaved: (id: string) => void }) {
   const entry: EntryLine[] = lines
     .filter((l) => l.item_id && Number(l.qty.replace(',', '.')) > 0)
     .map((l) => ({ item_id: l.item_id, qty: Number(l.qty.replace(',', '.')), uom: l.uom || m.items.get(l.item_id)?.base_uom || 'piece' }));
-  const built = useMemo(() => buildOrderLines(entry, m.items, camps.data ?? [], m.bundles), [JSON.stringify(entry), m.items, camps.data, m.bundles]); // eslint-disable-line react-hooks/exhaustive-deps
+  const built = buildOrderLines(entry, m.items, camps.data ?? [], m.bundles);
 
   const setLine = (i: number, patch: Partial<DraftLine>) => setLines((ls) => ls.map((l, j) => (j === i ? { ...l, ...patch } : l)));
   const partyOptions = m.lk.options('party', (p) => p.type === 'dealer' || p.type === 'importer');

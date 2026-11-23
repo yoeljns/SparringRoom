@@ -278,7 +278,7 @@ export function StepList({ steps }: { steps: { key: string; label: string; value
             {step.value ? (
               <span className="block truncate font-mono text-base">{step.value}</span>
             ) : step.hint ? (
-              <span className="block truncate font-mono text-base font-semibold opacity-90">{step.hint}</span>
+              <span className="block truncate text-base font-semibold opacity-90">{step.hint}</span>
             ) : null}
           </span>
         </li>

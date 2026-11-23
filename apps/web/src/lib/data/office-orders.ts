@@ -184,7 +184,11 @@ export function buildOrderLines(
 
 /** Lines for rpc_save_order (display-only keys removed). */
 export function toSaveLines(lines: readonly SaveLine[]): Row[] {
-  return lines.map(({ campaign_code: _c, ...rest }) => rest);
+  return lines.map((line) => {
+    const rest: Row = { ...line };
+    delete rest.campaign_code;
+    return rest;
+  });
 }
 
 export interface ImportedOrder {

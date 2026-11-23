@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { rows, rpc, type Row } from '@/lib/data/office-db';
+import { parseServerMessage, rows, rpc, type Row } from '@/lib/data/office-db';
+import { loadDigest } from '@/lib/notify/digest-fallback';
 import { alertTitle, payloadLine, renderDigest } from '@/lib/notify/render';
+import { getBrowserSupabase } from '@/lib/supabase/browser';
 import { DataTable, type Column } from '../DataTable';
 import { useAction, useLoad, useUrlParam } from '../hooks';
 import { T } from '../i18n';
 import { useLookups, withLookups } from '../lookups';
 import { Badge, Button, Card, Drawer, Json, Loading, Notice, Select, Tabs } from '../ui';
-
-const ACK_ROLES = ['owner', 'ops_manager', 'finance', 'planner', 'qc'];
 
 function AlertList() {
   const lk = useLookups(['user']);
@@ -72,14 +72,19 @@ function AckButton({ row, onDone, run, busy }: { row: Row; onDone: () => void; r
 }
 
 function DigestPreview() {
-  const digest = useLoad(() => rpc<Row>('rpc_digest'), []);
+  const digest = useLoad(async () => {
+    const res = await loadDigest(getBrowserSupabase());
+    if (res.error || !res.data) throw parseServerMessage(res.error);
+    return res;
+  }, []);
   if (digest.error) return <Notice>{digest.error}</Notice>;
   if (!digest.data) return <Loading />;
-  const rendered = renderDigest(digest.data, '');
+  const rendered = renderDigest(digest.data.data, '');
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
       <Card title={T('alerts.digestTitle')}>
         <p className="mb-3 text-sm text-muted">{T('alerts.digestHelp')}</p>
+        {digest.data.fallback ? <div className="mb-3"><Notice tone="warn">{T('alerts.digestFallback')}</Notice></div> : null}
         <div className="rounded-md border border-line p-4" data-testid="digest-preview">
           <h4 className="border-b-2 border-brand pb-2 text-base font-bold">{rendered.subject}</h4>
           {rendered.sections.map((s) => (
@@ -90,7 +95,7 @@ function DigestPreview() {
           ))}
         </div>
       </Card>
-      <Card title={T('alerts.digestRaw')}><Json value={digest.data} /></Card>
+      <Card title={T('alerts.digestRaw')}><Json value={digest.data.data} /></Card>
     </div>
   );
 }
@@ -106,4 +111,3 @@ export function AlertsScreen() {
   );
 }
 
-export { ACK_ROLES };

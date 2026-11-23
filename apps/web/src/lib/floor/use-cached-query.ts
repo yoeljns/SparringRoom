@@ -73,10 +73,16 @@ export function useCachedQuery<T>(key: string | null, fetcher: (sb: SupabaseClie
     let cancelled = false;
     void (async () => {
       const cached = readCache<T>(cacheKey);
-      if (!cancelled && cached) {
-        // Show the cached list at once, but only if nothing fresher for this key is on screen.
-        setState((s) => (s.key === cacheKey && s.data !== null ? s : { key: cacheKey, data: cached.data, loading: false, stale: !navigator.onLine, fetchedAt: cached.at, error: null }));
+      const offline = typeof navigator !== 'undefined' && !navigator.onLine;
+      if (!cancelled && (cached || offline)) {
+        // Show the cached list at once; what is already on screen stays, marked stale while offline.
+        setState((s) =>
+          s.key === cacheKey && s.data !== null
+            ? offline && !s.stale ? { ...s, stale: true } : s
+            : { key: cacheKey, data: cached?.data ?? null, loading: !cached && !offline, stale: offline, fetchedAt: cached?.at ?? null, error: null },
+        );
       }
+      if (offline) return;
       try {
         const data = await fetcherRef.current(getBrowserSupabase());
         if (cancelled) return;

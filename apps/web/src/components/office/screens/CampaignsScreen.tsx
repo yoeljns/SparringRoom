@@ -12,7 +12,7 @@ import { E, fDate, fDateTime, fEur, fNum, fRatio, L, T, todayIso } from '../i18n
 import { JobList } from '../Jobs';
 import { useLookups, withLookups, type Lookups } from '../lookups';
 import { parseAttrs, SchemaForm } from '../SchemaForm';
-import { Badge, Button, Card, Drawer, Empty, Facts, Field, Json, Modal, Notice, Select, Stat, StatusBadge, Tabs, inputCls } from '../ui';
+import { Badge, Button, Card, Drawer, Empty, Facts, Field, Json, Modal, Notice, Select, Stat, Tabs, inputCls } from '../ui';
 
 const STATES = ['draft', 'simulated', 'approved', 'live', 'closed', 'reviewed', 'cancelled'];
 const LIFECYCLE = ['draft', 'simulated', 'approved', 'live', 'closed', 'reviewed'];
