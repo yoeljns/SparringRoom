@@ -74,7 +74,7 @@ function Inbound() {
       try {
         out.push(await importFile(f));
       } catch (err) {
-        out.push({ file: f.name, state: 'rejected', detail: [errText(err)] });
+        out.push({ file: f.name, state: 'failed', detail: [errText(err)] });
       }
     }
     setResults(out);

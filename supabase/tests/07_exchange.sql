@@ -1,6 +1,6 @@
 -- Logo file exchange and reconciliation (spec §11, §13.2 "Exchange").
 begin;
-select plan(22);
+select plan(24);
 select test.base();
 select test.mk_user('finance') as fin \gset
 insert into item (sku, name, family_id, logo_item_code) values
@@ -26,6 +26,11 @@ select is(rpc_import_batch('items_20270101_01.csv', 'hash-items-1', 'items', 'v1
   'a file hash seen before is skipped');
 select is((select count(*)::int from item where logo_item_code = 'L-ZZZ'), 0, 'the same file imported twice changes nothing');
 select is((select count(*)::int from import_batch), 1, 'one batch recorded');
+
+-- a Logo code that equals one of our SKUs updates that item instead of failing
+select is(rpc_import_batch('items_20270102_01.csv', 'hash-items-2', 'items', 'v1', '{logo_item_code,name,unit,gtin,active}',
+  '[{"logo_item_code":"SIYAH","name":"SIYAH (LOGO)","unit":"ADET","gtin":"","active":"true"}]')->>'state', 'applied', 'a Logo code equal to an existing SKU applies');
+select is((select count(*)::int from item where sku = 'SIYAH'), 1, 'and creates no duplicate item');
 
 -- a file with an unknown column is rejected whole
 select is(rpc_import_batch('parties_20270101_01.csv', 'hash-p-1', 'parties', 'v1', '{logo_cari_code,name,vkn,type,city,country,active,credit_limit}',

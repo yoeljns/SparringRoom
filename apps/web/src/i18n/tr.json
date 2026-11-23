@@ -786,7 +786,8 @@
         "DELETE": "Silme",
         "expiry": "SKT",
         "purchase_order": "Satınalma siparişi",
-        "master_data": "Ana veri"
+        "master_data": "Ana veri",
+      "system": "Sistem"
       },
       "ledger": {
         "empty": "Bu rakamın arkasında hareket yok.",
@@ -1391,7 +1392,8 @@
           "applied": "Dosya işlendi.",
           "skipped": "Bu dosya daha önce alınmış; atlandı.",
           "rejected": "Dosya tümüyle reddedildi.",
-          "held": "Satır hataları var; dosya bekletildi ve hiçbir satırı işlenmedi."
+          "held": "Satır hataları var; dosya bekletildi ve hiçbir satırı işlenmedi.",
+        "failed": "Dosya alınamadı; hiçbir satırı işlenmedi ve içe aktarma kaydı oluşmadı."
         },
         "out": {
           "shipment_confirm": "Sevk onayları",

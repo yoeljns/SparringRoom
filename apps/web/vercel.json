@@ -3,5 +3,9 @@
   "crons": [
     { "path": "/api/cron/digest", "schedule": "0 4 * * *" },
     { "path": "/api/cron/alerts", "schedule": "*/5 * * * *" }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/digest/route.ts": { "maxDuration": 60 },
+    "src/app/api/cron/alerts/route.ts": { "maxDuration": 60 }
+  }
 }

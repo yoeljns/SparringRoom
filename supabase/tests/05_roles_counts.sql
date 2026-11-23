@@ -1,6 +1,6 @@
 -- Roles, approvals, blind counts, parameters (spec §5.5, §12, §13.2).
 begin;
-select plan(41);
+select plan(43);
 select test.base();
 select test.mk_user('owner') as owner \gset
 select test.mk_user('ops_manager') as ops \gset
@@ -108,5 +108,8 @@ select lives_ok(format('select rpc_decide_approval(%L, true)', (select approval_
 select test.as_system();
 select is(test.bal('SIYAH', 'TZ-B01-L02'), 1200::numeric, 'count_adjust posted after the confirmed recount');
 select is((select reason_code from stock_txn where txn_type = 'count_adjust'), 'missing', 'the adjustment carries its reason code');
+select test.as_user(:'owner');
+select lives_ok('select rpc_digest()', 'the daily digest builds');
+select lives_ok('select rpc_dashboard()', 'the owner dashboard builds');
 select * from finish();
 rollback;

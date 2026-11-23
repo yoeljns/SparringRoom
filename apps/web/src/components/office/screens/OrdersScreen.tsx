@@ -122,13 +122,12 @@ function OrderDetail({ orderId, lk, onClose, onChanged }: { orderId: string; lk:
           columns={withLookups([
             { key: 'line_no', type: 'int' },
             { key: 'item_id', label: T('c.item'), lookup: 'item' } as Column,
-            { key: 'line_type', render: (r) => <span className="inline-flex gap-1"><Badge tone={lineTone(r.line_type)}>{E(r.line_type)}</Badge>{r.is_phantom ? <Badge tone="dark">{T('orders.phantom')}</Badge> : null}</span>, text: (r) => E(r.line_type) },
-            { key: 'mechanic_code', render: (r) => (r.mechanic_code ? E(r.mechanic_code) : '—') },
-            { key: 'qty_entered', type: 'num', render: (r) => `${fNum(r.qty_entered)} ${E(r.uom)}` },
+            { key: 'line_type', render: (r) => <span className="inline-flex gap-1"><Badge tone={lineTone(r.line_type)}>{E(r.line_type)}</Badge>{r.mechanic_code ? <Badge>{E(r.mechanic_code)}</Badge> : null}{r.is_phantom ? <Badge tone="dark">{T('orders.phantom')}</Badge> : null}</span>, text: (r) => E(r.line_type) },
+                        { key: 'qty_entered', type: 'num', render: (r) => `${fNum(r.qty_entered)} ${E(r.uom)}` },
             { key: 'qty', type: 'num', label: T('orders.qtyBase') },
-            { key: 'shipped_qty', type: 'num' },
             { key: 'promised_date', render: (r) => <strong data-testid="promised-date">{fDate(r.promised_date)}</strong>, text: (r) => r.promised_date },
             { key: 'promise_basis', label: T('orders.basis'), render: (r) => (r.is_phantom ? '—' : <Basis promise={r.promise_basis} />) },
+            { key: 'shipped_qty', type: 'num' },
             { key: 'backorder', type: 'bool' },
           ], lk)}
         />

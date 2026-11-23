@@ -18,6 +18,7 @@ const SECRET = process.env.DEV_JWT_SECRET || 'dev-only-secret-not-for-production
 const PASSWORD = process.env.DEV_PASSWORD || 'dayson123';
 const STORE = process.env.DEV_STORAGE_DIR || '/tmp/dayson-dev-storage';
 const pool = new pg.Pool({ connectionString: DB, max: 10 });
+pool.on('error', () => {}); // a database reset drops idle connections; the pool reconnects on the next request
 pg.types.setTypeParser(1700, (v) => Number(v)); // numeric -> number, like PostgREST JSON
 const IDENT = /^[a-z_][a-z0-9_]*$/;
 

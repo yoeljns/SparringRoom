@@ -491,7 +491,14 @@ begin
   -- apply
   for r in select * from jsonb_array_elements(p_rows) loop
     v_item := null; v_party := null;
-    if p_file_type <> 'parties' then select id into v_item from item where logo_item_code = r->>'logo_item_code'; end if;
+    if p_file_type <> 'parties' then
+      select id into v_item from item where logo_item_code = r->>'logo_item_code';
+      -- a Logo code equal to one of our SKUs is the same product, not a new item
+      if v_item is null and p_file_type = 'items' then
+        select id into v_item from item where sku = r->>'logo_item_code';
+        if v_item is not null then update item set needs_review = true where id = v_item; end if;
+      end if;
+    end if;
     if p_file_type in ('sales_docs','purchase_docs') then select id into v_party from party where logo_cari_code = r->>'logo_cari_code'; end if;
 
     if p_file_type = 'items' then
@@ -1004,7 +1011,7 @@ begin
         where a.rule = 'truck_weight_override' and a.created_at > now() - interval '24 hours'), '[]'::jsonb),
     'shipments_no_invoice', coalesce((select jsonb_agg(a.payload) from alert a where a.rule = 'shipment_no_invoice' and a.acked_at is null), '[]'::jsonb),
     'approvals_waiting', coalesce((select jsonb_agg(jsonb_build_object('id', ar.id, 'type', ar.type, 'reason', ar.reason, 'created_at', ar.created_at,
-          'for_owner', 'owner' = any ((select approver_roles from approval_rule where type = ar.type))))
+          'for_owner', (select 'owner' = any (rl.approver_roles) from approval_rule rl where rl.type = ar.type)))
         from approval_request ar where ar.state = 'pending'), '[]'::jsonb),
     'negative_fva_sources', coalesce((select jsonb_agg(x) from (
         select source, round(avg(fva), 4) as fva from forecast_override
