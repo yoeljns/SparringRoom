@@ -649,7 +649,8 @@ declare
   v_sample jsonb;
 begin
   perform app.require_role('owner','ops_manager','finance','auditor');
-  create temp table if not exists _shadow_balance on commit drop as
+  drop table if exists _shadow_balance;
+  create temp table _shadow_balance on commit drop as
     select item_id, lot_id, location_id, owner_id, stock_status, sum(qty_base) as qty_base
       from stock_move group by 1,2,3,4,5;
   with d as (

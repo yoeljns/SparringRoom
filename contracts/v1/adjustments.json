@@ -1,0 +1,44 @@
+{
+  "schema": "v1",
+  "type": "adjustments",
+  "direction": "outbound",
+  "description": "Book count differences and scrap",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "txn_id",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "name": "logo_item_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "qty_signed",
+      "type": "decimal",
+      "required": true
+    },
+    {
+      "name": "reason_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "approved_by",
+      "type": "string",
+      "required": false
+    }
+  ]
+}

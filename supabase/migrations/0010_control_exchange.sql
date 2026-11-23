@@ -166,7 +166,7 @@ language plpgsql security definer set search_path = public, app as $$
 begin
   perform app.require_role('owner');
   update plan_version set state = 'archived' where state = 'published' and kind = 'plan' and id <> p_plan;
-  update plan_version set state = 'published', kind = 'plan', published_at = now(), signed_by = app.uid(),
+  update plan_version set state = 'published', kind = 'plan', published_at = clock_timestamp(), signed_by = app.uid(),
          param_version = app.param_version() where id = p_plan;
   if not found then perform app.fail('NOT_FOUND', 'plan version'); end if;
   return jsonb_build_object('plan_version_id', p_plan, 'state', 'published');
@@ -652,6 +652,7 @@ begin
 
   -- 3. document level: every dispatched shipment against a Logo irsaliye by ref_shipment_id,
   --    every receipt against a purchase document; and Logo documents we cannot place.
+  drop table if exists _unmatched;
   create temp table _unmatched on commit drop as
   select 'inventory'::text as side, s.shipment_no as doc_no, i.id as item_id, s.dispatched_at as doc_at
     from shipment s

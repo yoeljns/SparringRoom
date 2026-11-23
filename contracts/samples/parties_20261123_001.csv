@@ -1,0 +1,8 @@
+#schema=v1
+logo_cari_code;name;vkn;type;city;country;active
+120.34.0017;Yıldız Oto Boya San. ve Tic. Ltd. Şti.;9876543210;dealer;İstanbul;TR;true
+120.06.0042;Çankaya Yapı Malzemeleri A.Ş.;1234567890;dealer;Ankara;TR;true
+120.35.0008;"Ege Hırdavat; Boya ve Nalbur";5556667778;dealer;İzmir;TR;true
+120.99.0103;Balkan Coatings DOOEL;;importer;Skopje;MK;true
+320.01.0005;sia Abrasives Industries AG;;supplier;Frauenfeld;CH;true
+320.41.0011;Kocaeli Ambalaj San. A.Ş.;4443332221;supplier;Kocaeli;TR;false

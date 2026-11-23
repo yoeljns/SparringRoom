@@ -1,0 +1,10 @@
+#schema=v1
+logo_item_code;name;unit;gtin;active
+DYS-PU-BEYAZ-600ML;Dayson PU Mastik Beyaz 600 ml Sosis;ADET;8691234500019;true
+DYS-PU-GRI-600ML;Dayson PU Mastik Gri 600 ml Sosis;ADET;8691234500026;true
+DYS-PU-SIYAH-310ML;Dayson PU Mastik Siyah 310 ml Kartuş;ADET;8691234500033;true
+DYS-SLK-SEFFAF-280ML;Dayson Silikon Şeffaf 280 ml Kartuş;ADET;8691234500101;true
+DYS-MB-GRI-48MM;Dayson Maskeleme Bandı Gri 48 mm x 40 m;RULO;8691234500200;true
+DYS-MB-SARI-24MM;Dayson Maskeleme Bandı Sarı 24 mm x 40 m;RULO;8691234500217;false
+SIA-DISK-150-15D-P240;SIA Zımpara Diski 150 mm 15 Delik P240;KUTU;;true
+SIA-DISK-150-15D-P320;SIA Zımpara Diski 150 mm 15 Delik P320;KUTU;;true

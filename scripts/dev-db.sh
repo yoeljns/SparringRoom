@@ -3,6 +3,7 @@
 # without a Supabase project. Usage: scripts/dev-db.sh up|reset|test|psql|stop
 # Set DATABASE_URL to use an existing server (CI) instead of the local cluster.
 set -euo pipefail
+export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PGBIN="${PGBIN:-/usr/lib/postgresql/16/bin}"
 PGDATA_DIR="${PGDATA_DIR:-/var/lib/dayson-pg}"
@@ -41,8 +42,9 @@ reset() {
 }
 
 run_tests() {
-  reset
+  SEED=0 reset
   psql -Xq "$URL" -c "create extension if not exists pgtap" >/dev/null
+  psql -Xq -v ON_ERROR_STOP=1 "$URL" -f "$ROOT/supabase/tests/shim/test_helpers.sql" >/dev/null
   local fail=0
   for f in "$ROOT"/supabase/tests/*.sql; do
     out="$(psql -Xqt -v ON_ERROR_STOP=1 "$URL" -f "$f" 2>&1)" || { echo "$out"; echo "ERROR in $f"; fail=1; continue; }

@@ -1,0 +1,63 @@
+{
+  "schema": "v1",
+  "type": "shipment_confirm",
+  "direction": "outbound",
+  "description": "Create e-Irsaliye and invoice; return doc numbers through sales_docs",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "shipment_id",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "ship_date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "name": "logo_cari_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "logo_item_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "qty",
+      "type": "decimal",
+      "required": true
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "lot_no",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "line_type",
+      "type": "enum",
+      "required": true,
+      "values": [
+        "paid",
+        "free"
+      ]
+    },
+    {
+      "name": "campaign_code",
+      "type": "string",
+      "required": false
+    }
+  ]
+}

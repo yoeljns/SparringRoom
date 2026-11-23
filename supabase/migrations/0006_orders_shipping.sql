@@ -185,8 +185,7 @@ language sql stable security definer set search_path = public, app as $$
     (select coalesce(sum(e.qty_base), 0) from v_expected_receipt e
       where e.item_id = p_item and e.expected_date < w.wk + 7),
     (select coalesce(sum(r.qty_base), 0) from reservation r
-      where r.item_id = p_item and r.state = 'active' and r.type = 'hard'
-        and r.demand_line_id is distinct from p_exclude_line),
+      where r.item_id = p_item and r.state = 'active' and r.type = 'hard'),
     (select coalesce(sum(r.qty_base), 0) from reservation r
       where r.item_id = p_item and r.state = 'active' and r.type = 'soft'
         and (r.expires_at is null or r.expires_at > now())
@@ -576,6 +575,7 @@ begin
   perform app.require_role('planner','ops_manager','owner');
   perform pg_advisory_xact_lock(hashtext('dayson_atp'));
 
+  drop table if exists _dem;
   create temp table _dem on commit drop as
   select r.id as res_id, r.demand_line_id, r.shipment_id, r.item_id, r.qty_base as need, 0::numeric as allot,
          0::numeric as share_raw, coalesce(o.priority_tier, 3) as tier, l.promised_date, o.party_id, s.planned_date,

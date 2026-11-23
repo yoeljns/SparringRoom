@@ -1,0 +1,40 @@
+{
+  "schema": "v1",
+  "type": "stock_snapshot",
+  "direction": "inbound",
+  "description": "Daily reconciliation",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "as_of",
+      "type": "datetime",
+      "required": true,
+      "note": "ISO date or ISO date-time with offset: the cut-off"
+    },
+    {
+      "name": "logo_item_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "warehouse_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "qty",
+      "type": "decimal",
+      "required": true
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "required": true
+    }
+  ]
+}

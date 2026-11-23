@@ -1,0 +1,44 @@
+{
+  "schema": "v1",
+  "type": "purchase_docs",
+  "direction": "inbound",
+  "description": "Receipt matching",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "doc_no",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "doc_date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "name": "logo_cari_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "logo_item_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "qty",
+      "type": "decimal",
+      "required": true
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "required": true
+    }
+  ]
+}

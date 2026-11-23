@@ -1,0 +1,45 @@
+{
+  "schema": "v1",
+  "type": "campaign_settlement",
+  "direction": "outbound",
+  "description": "Book rebates and free-goods totals",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "campaign_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "dealer_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "type",
+      "type": "enum",
+      "required": true,
+      "values": [
+        "rebate",
+        "free_goods_total"
+      ]
+    },
+    {
+      "name": "amount_eur",
+      "type": "decimal",
+      "required": false,
+      "note": "filled when type = rebate"
+    },
+    {
+      "name": "qty",
+      "type": "decimal",
+      "required": false,
+      "note": "filled when type = free_goods_total"
+    }
+  ]
+}

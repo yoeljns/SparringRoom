@@ -1,0 +1,206 @@
+{
+  "app": {
+    "name": "Dayson Envanter",
+    "floorName": "Dayson Depo",
+    "tagline": "Stok, sipariş ve sevkiyat tek yerde.",
+    "loading": "Yükleniyor…",
+    "retry": "Tekrar dene",
+    "back": "Geri",
+    "close": "Kapat",
+    "cancel": "Vazgeç",
+    "confirm": "Onayla",
+    "save": "Kaydet",
+    "yes": "Evet",
+    "no": "Hayır",
+    "comingSoon": "Bu ekran hazırlanıyor.",
+    "comingSoonDetail": "Veri bağlantısı tamamlandığında burada görünecek."
+  },
+  "auth": {
+    "title": "Giriş yap",
+    "subtitle": "Devam etmek için hesabınızla giriş yapın.",
+    "email": "E-posta",
+    "password": "Şifre",
+    "signIn": "Giriş yap",
+    "signingIn": "Giriş yapılıyor…",
+    "signOut": "Çıkış yap",
+    "invalidCredentials": "E-posta veya şifre hatalı.",
+    "networkError": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edin.",
+    "notConfigured": "Sistem yapılandırması eksik. Yöneticinize haber verin.",
+    "inactive": "Hesabınız pasif. Yöneticinize başvurun.",
+    "noProfile": "Kullanıcı kaydınız bulunamadı. Yöneticinize başvurun.",
+    "profileError": "Kullanıcı bilgileri alınamadı.",
+    "noAccessTitle": "Bu ekrana erişiminiz yok",
+    "noAccessBody": "Rolünüz ({role}) bu ekranı görmeye yetkili değil.",
+    "signOutBlocked": "Gönderilmemiş {count} kayıt var. Önce kuyruk boşalmalı.",
+    "devMode": "Geliştirme modu: giriş kapalı"
+  },
+  "roles": {
+    "owner": "Firma Sahibi",
+    "ops_manager": "Operasyon Müdürü",
+    "operator": "Depo Operatörü",
+    "qc": "Kalite Kontrol",
+    "planner": "Planlamacı",
+    "sales_rep": "Satış Temsilcisi",
+    "finance": "Finans",
+    "auditor": "Denetçi"
+  },
+  "office": {
+    "menu": "Menü",
+    "openFloor": "Depo uygulaması",
+    "nav": {
+      "dashboard": "Pano",
+      "stock": "Stok",
+      "orders": "Siparişler",
+      "shipping": "Sevkiyat",
+      "supply": "Satınalma / Üretim",
+      "planning": "Planlama",
+      "campaigns": "Kampanyalar",
+      "dealers": "Bayiler",
+      "reconciliation": "Mutabakat",
+      "approvals": "Onaylar",
+      "alerts": "Uyarılar",
+      "masters": "Ana Veriler",
+      "audit": "Denetim"
+    },
+    "desc": {
+      "dashboard": "Stok sağlığı, hizmet seviyesi, stok riski, kampanyalar ve plan.",
+      "stock": "Ürün, lot ve lokasyon bazında stok; her rakamın arkasındaki hareketler.",
+      "orders": "Satış siparişleri, rezervasyonlar ve söz verilen tarihler.",
+      "shipping": "Tır planları, toplama durumu ve sevk onayları.",
+      "supply": "Satınalma ve üretim siparişleri, öneriler ve mal kabuller.",
+      "planning": "Sınıflandırma, tahminler, emniyet stoğu ve yeniden sipariş önerileri.",
+      "campaigns": "Kampanya taslakları, simülasyon, onay ve kampanya sonu değerlendirmesi.",
+      "dealers": "Bayi kartları, konsinye stok ve bayi stok tahminleri.",
+      "reconciliation": "Logo ile günlük mutabakat; açık farklar ve ay sonu onayı.",
+      "approvals": "İkinci kişi onayı bekleyen işlemler.",
+      "alerts": "Anlık uyarılar ve günlük özet.",
+      "masters": "Ürünler, lokasyonlar, cariler, parametreler ve kullanıcılar.",
+      "audit": "Değişiklik kayıtları ve hareket defteri."
+    }
+  },
+  "floor": {
+    "home": "Ana Sayfa",
+    "greeting": "Merhaba, {name}",
+    "pickScreen": "Bir işlem seçin",
+    "online": "Çevrimiçi",
+    "offline": "Çevrimdışı",
+    "screens": {
+      "tasks": "Görevlerim",
+      "receive": "Mal Kabul",
+      "qc": "Kalite",
+      "putaway": "Yerleştirme",
+      "pick": "Toplama",
+      "load": "Yükleme",
+      "count": "Sayım",
+      "transfer": "Transfer",
+      "query": "Sorgu"
+    },
+    "desc": {
+      "tasks": "Açık görevleriniz, öncelik sırasıyla.",
+      "receive": "Satınalma, üretim veya iade kabulü.",
+      "qc": "Karantinadaki lotları serbest bırak veya reddet.",
+      "putaway": "Önerilen koridora yerleştir.",
+      "pick": "Tır bazında toplama, SKT sırasına göre.",
+      "load": "Yükleme okutması, anlık ağırlık, tır kapatma.",
+      "count": "Kör sayım ve tekrar sayım.",
+      "transfer": "Koridorlar arası taşıma ve birleştirme.",
+      "query": "Herhangi bir barkodu okut, ne olduğunu gör."
+    },
+    "testMode": "Deneme modu: okutmalar kaydedilmez.",
+    "testDone": "Üç okutma tamamlandı. Deneme modunda kayıt yapılmadı."
+  },
+  "scan": {
+    "placeholder": "Barkod okutun",
+    "manualPlaceholder": "Kodu yazın",
+    "waiting": "Okutma bekleniyor",
+    "last": "Son okutma",
+    "none": "Henüz okutma yok",
+    "manualOn": "Elle giriş",
+    "manualOff": "Okuyucuya dön",
+    "manualTitle": "Elle giriş",
+    "manualWarning": "Elle giriş, okutma uyum oranınızı düşürür.",
+    "reason": "Neden",
+    "chooseReason": "Neden seçin",
+    "submit": "Gönder",
+    "reasonRequired": "Önce bir neden seçin.",
+    "method": {
+      "scan": "Okutma",
+      "manual": "Elle"
+    },
+    "reasons": {
+      "label_damaged": "Etiket hasarlı",
+      "label_missing": "Etiket yok",
+      "scanner_fault": "Okuyucu arızalı",
+      "other": "Diğer"
+    },
+    "kind": {
+      "location": "Lokasyon",
+      "gs1": "GS1 etiketi",
+      "pallet_serial": "Palet numarası",
+      "unknown": "Tanınmadı"
+    },
+    "field": {
+      "code": "Lokasyon kodu",
+      "serial": "Palet no",
+      "gtin": "GTIN",
+      "lot": "Lot",
+      "expiry": "Son kullanma",
+      "production": "Üretim tarihi"
+    },
+    "refused": {
+      "unknown": "Tanınmayan barkod. Okutma reddedildi.",
+      "wrongKind": "Yanlış barkod: {expected} bekleniyor, {got} okutuldu.",
+      "rejected": "Okutma reddedildi.",
+      "busy": "Önceki okutma işleniyor."
+    },
+    "checkDigitWarning": "Kontrol hanesi hatalı; numarayı doğrulayın."
+  },
+  "flow": {
+    "step": "Adım {n} / {total}",
+    "expecting": "Şimdi okutun: {what}",
+    "source": "Kaynak lokasyon",
+    "pallet": "Palet",
+    "destination": "Hedef lokasyon",
+    "done": "Tamamlandı",
+    "restart": "Baştan başla",
+    "accepted": "Kabul edildi"
+  },
+  "outbox": {
+    "title": "Gönderim Kuyruğu",
+    "badge": "Kuyruk",
+    "queued": "Bekleyen",
+    "rejected": "Reddedilen",
+    "empty": "Bekleyen kayıt yok.",
+    "noRejected": "Reddedilen kayıt yok.",
+    "sending": "Gönderiliyor…",
+    "waitingNetwork": "Bağlantı bekleniyor",
+    "retryAt": "Tekrar denenecek",
+    "sendNow": "Şimdi gönder",
+    "attempts": "{count} deneme",
+    "blockedTitle": "Kuyruk boşalmadan tamamlanamaz",
+    "blockedBody": "{count} kayıt sunucuya gönderilmeyi bekliyor. Bağlantı gelince otomatik gönderilir.",
+    "blockedRejectedTitle": "Reddedilen kayıtlar var",
+    "blockedRejectedBody": "{count} kayıt sunucu tarafından reddedildi. Devam etmeden önce inceleyin.",
+    "review": "Kayıtları incele",
+    "acknowledge": "Gördüm",
+    "rejectedHelp": "Bu kayıtlar sunucu tarafından reddedildi ve tekrar gönderilmeyecek. Vardiya amirine haber verin.",
+    "command": "İşlem",
+    "time": "Saat",
+    "error": "Hata"
+  },
+  "errors": {
+    "UNBALANCED": "Hareket dengeli değil.",
+    "NEGATIVE_BALANCE": "Yetersiz stok: bakiye eksiye düşer.",
+    "LANE_MIXED": "Koridorda başka ürün veya lot var.",
+    "LOT_REQUIRED": "Lot bilgisi zorunlu.",
+    "MRSL_BLOCKED": "Kalan raf ömrü müşteri kuralını karşılamıyor.",
+    "NOT_PERMITTED": "Bu işlem için yetkiniz yok.",
+    "APPROVAL_REQUIRED": "Bu işlem ikinci bir onay gerektiriyor.",
+    "UNKNOWN": "İşlem reddedildi."
+  },
+  "labels": {
+    "pallet": "Palet etiketi",
+    "location": "Lokasyon etiketi",
+    "carton": "Koli etiketi"
+  }
+}

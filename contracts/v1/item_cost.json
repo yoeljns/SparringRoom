@@ -1,0 +1,29 @@
+{
+  "schema": "v1",
+  "type": "item_cost",
+  "direction": "inbound",
+  "description": "ABC value ranking and EUR alert thresholds only",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "logo_item_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "cost_eur",
+      "type": "decimal",
+      "required": true
+    },
+    {
+      "name": "as_of",
+      "type": "date",
+      "required": true
+    }
+  ]
+}

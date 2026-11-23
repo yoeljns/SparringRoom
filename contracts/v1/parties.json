@@ -1,0 +1,49 @@
+{
+  "schema": "v1",
+  "type": "parties",
+  "direction": "inbound",
+  "description": "Party master sync",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "logo_cari_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "vkn",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "city",
+      "type": "string",
+      "required": false
+    },
+    {
+      "name": "country",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "active",
+      "type": "boolean",
+      "required": true
+    }
+  ]
+}

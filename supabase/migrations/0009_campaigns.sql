@@ -365,8 +365,8 @@ language plpgsql security definer set search_path = public, app as $$
 declare v_id uuid;
 begin
   perform app.require_role('owner');  -- in practice only the worker (system) calls this
-  insert into campaign_simulation (campaign_id, plan_version_id, base_plan_version_id, result, created_by)
-  values (p_campaign, p_plan_version, app.current_plan_version(), p_result, app.uid()) returning id into v_id;
+  insert into campaign_simulation (campaign_id, plan_version_id, base_plan_version_id, result, created_at, created_by)
+  values (p_campaign, p_plan_version, app.current_plan_version(), p_result, clock_timestamp(), app.uid()) returning id into v_id;
   update campaign set state = 'simulated' where id = p_campaign and state in ('draft','simulated');
   return v_id;
 end $$;

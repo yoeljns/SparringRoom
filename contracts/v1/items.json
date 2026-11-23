@@ -1,0 +1,40 @@
+{
+  "schema": "v1",
+  "type": "items",
+  "direction": "inbound",
+  "description": "Detect new or changed items; never overwrites attributes kept here",
+  "file_name": "<type>_<YYYYMMDD>_<seq>.csv",
+  "first_line": "#schema=v1",
+  "encoding": "UTF-8",
+  "separator": ";",
+  "decimal": ".",
+  "date_format": "YYYY-MM-DD",
+  "columns": [
+    {
+      "name": "logo_item_code",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "gtin",
+      "type": "string",
+      "required": false,
+      "note": "8, 12, 13 or 14 digits"
+    },
+    {
+      "name": "active",
+      "type": "boolean",
+      "required": true
+    }
+  ]
+}

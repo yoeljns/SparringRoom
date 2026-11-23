@@ -1,0 +1,5 @@
+#schema=v1
+campaign_code;dealer_code;type;amount_eur;qty
+Q3-HEDEF-PRIM;120.34.0017;rebate;1845.50;
+Q3-HEDEF-PRIM;120.06.0042;rebate;920.00;
+KASIM-10+1;120.34.0017;free_goods_total;;240
