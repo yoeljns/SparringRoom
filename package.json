@@ -1,0 +1,14 @@
+{
+  "name": "dayson-inventory",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "db:up": "bash scripts/dev-db.sh up",
+    "db:reset": "bash scripts/dev-db.sh reset",
+    "db:test": "bash scripts/dev-db.sh test"
+  }
+}
