@@ -1,9 +1,14 @@
 import type { Metadata } from 'next';
-import { OfficePlaceholder } from '@/components/office/OfficePlaceholder';
+import { PlanningScreen } from '@/components/office/screens/PlanningScreen';
+import { Section } from '@/components/office/ui';
 import { t } from '@/i18n';
 
 export const metadata: Metadata = { title: t('office.nav.planning') };
 
 export default function Page() {
-  return <OfficePlaceholder screen="planning" />;
+  return (
+    <Section screen="planning">
+      <PlanningScreen />
+    </Section>
+  );
 }

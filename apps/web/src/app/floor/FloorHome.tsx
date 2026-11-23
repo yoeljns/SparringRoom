@@ -6,6 +6,7 @@ import { Icon } from '@/components/icons';
 import { t } from '@/i18n';
 import { useProfile } from '@/lib/auth/profile-context';
 import { DEV_NO_AUTH } from '@/lib/env';
+import { canUseDealerScreen } from '@/lib/floor/dealer-access';
 import { useOutbox } from '@/lib/floor/outbox/react';
 
 /** Home tiles for the nine screens of spec 5.1, filtered by role. */
@@ -29,7 +30,7 @@ export function FloorHome() {
         ? t('auth.noProfile')
         : status === 'error'
           ? t('auth.profileError')
-          : screens.length === 0
+          : screens.length === 0 && !canUseDealerScreen(role)
             ? t('auth.noAccessTitle')
             : null;
 
@@ -68,6 +69,18 @@ export function FloorHome() {
               </Link>
             </li>
           ))}
+          {canUseDealerScreen(role) ? (
+            <li>
+              <Link
+                href="/floor/dealer"
+                data-testid="tile-dealer"
+                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border-2 border-ink bg-paper p-1 text-center text-ink active:scale-[0.97]"
+              >
+                <Icon name="dealers" size={40} strokeWidth={2.2} />
+                <span className="text-[15px] font-extrabold leading-tight">{t('floor.dealer.title')}</span>
+              </Link>
+            </li>
+          ) : null}
         </ul>
       )}
 

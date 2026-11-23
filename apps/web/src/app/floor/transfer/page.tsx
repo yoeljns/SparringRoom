@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
-import { ScreenGuard } from '@/components/ScreenGuard';
+import { FloorPage } from '@/components/floor/ui';
 import { t } from '@/i18n';
-import { TransferTrial } from './TransferTrial';
+import { TransferScreen } from './TransferScreen';
 
 export const metadata: Metadata = { title: t('floor.screens.transfer') };
 
 export default function Page() {
   return (
-    <ScreenGuard screen="floor.transfer">
-      <TransferTrial />
-    </ScreenGuard>
+    <FloorPage screen="floor.transfer">
+      <TransferScreen />
+    </FloorPage>
   );
 }

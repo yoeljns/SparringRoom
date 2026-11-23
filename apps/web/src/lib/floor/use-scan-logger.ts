@@ -2,11 +2,16 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import type { ClassifiedScan } from '@dayson/domain';
-import type { LogScan } from '@/lib/data/scan-log';
+import type { LogScan, ScanStepKind } from '@/lib/data/scan-log';
 import type { ScanMeta } from './scan-flow';
 
+export function stepKindOf(key: string | undefined): ScanStepKind {
+  return key === 'source' || key === 'pallet' || key === 'destination' ? key : 'other';
+}
+
 /**
- * Returns a function that logs a refused scan through the injected `logScan`.
+ * Returns a function that logs a scan through the injected `logScan`:
+ * reason "accepted" for a confirmation, anything else for a refusal.
  * Logging never blocks or breaks the scan screen.
  */
 export function useScanLogger(logScan: LogScan | undefined, context: string) {
@@ -15,7 +20,7 @@ export function useScanLogger(logScan: LogScan | undefined, context: string) {
     ref.current = logScan;
   }, [logScan]);
   return useCallback(
-    (scan: ClassifiedScan, meta: ScanMeta, reason: string) => {
+    (scan: ClassifiedScan, meta: ScanMeta, reason: string, step?: string) => {
       const fn = ref.current;
       if (!fn) return;
       try {
@@ -24,12 +29,15 @@ export function useScanLogger(logScan: LogScan | undefined, context: string) {
           kind: scan.kind,
           context,
           reason,
+          accepted: reason === 'accepted',
+          step: stepKindOf(step),
           method: meta.method,
+          reason_code: meta.reason_code,
           scanned_at: new Date().toISOString(),
         });
         if (result instanceof Promise) result.catch(() => {});
       } catch {
-        // Ignore: the operator has already heard the refusal tone.
+        // Ignore: the operator has already heard the tone.
       }
     },
     [context],

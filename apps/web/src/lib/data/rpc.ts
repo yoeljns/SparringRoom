@@ -67,6 +67,21 @@ export function classifyRpcError(error: RawRpcError): Exclude<RpcOutcome, { ok: 
   return { ok: false, kind: 'business', code: businessCodeOf(error), message };
 }
 
+/**
+ * post_txn and rpc_floor do not raise: they RETURN a refusal as
+ * {"error": "CODE", "message": "CODE: detail"} with HTTP 200 (docs/api.md,
+ * "Error conventions"), so the refusal can be logged server-side.
+ */
+export const RETURNS_REFUSAL = ['rpc_floor', 'post_txn'] as const;
+
+export function returnedRefusal(name: string, data: unknown): Extract<RpcOutcome, { kind: 'business' }> | null {
+  if (!(RETURNS_REFUSAL as readonly string[]).includes(name)) return null;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+  const row = data as Record<string, unknown>;
+  if (typeof row.error !== 'string' || row.error.length === 0) return null;
+  return { ok: false, kind: 'business', code: row.error, message: typeof row.message === 'string' ? row.message : row.error };
+}
+
 /** Call a database function and classify the result. Never throws. */
 export async function callRpc<T = unknown>(
   supabase: SupabaseClient,
@@ -75,7 +90,10 @@ export async function callRpc<T = unknown>(
 ): Promise<RpcOutcome<T>> {
   try {
     const { data, error, status } = await supabase.rpc(name, args);
-    if (!error) return { ok: true, data: data as T };
+    if (!error) {
+      const refusal = returnedRefusal(name, data);
+      return refusal ?? { ok: true, data: data as T };
+    }
     return classifyRpcError({ status, code: error.code, message: error.message, details: error.details, hint: error.hint });
   } catch (err) {
     return { ok: false, kind: 'transient', message: err instanceof Error ? err.message : String(err) };

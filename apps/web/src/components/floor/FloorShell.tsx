@@ -15,6 +15,7 @@ function titleFor(pathname: string): string {
   const segment = pathname.split('/')[2];
   if (!segment) return t('app.floorName');
   if (segment === 'outbox') return t('outbox.title');
+  if (segment === 'dealer') return t('floor.dealer.title');
   if ((FLOOR_SCREENS as readonly string[]).includes(segment)) return t(`floor.screens.${segment as FloorScreen}`);
   return t('app.floorName');
 }

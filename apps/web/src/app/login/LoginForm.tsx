@@ -49,7 +49,7 @@ export function LoginForm({ next, configError }: { next?: string; configError?: 
     'mt-1 block h-12 w-full rounded-md border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-ink focus:ring-2 focus:ring-ink/10';
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate={false}>
+    <form onSubmit={onSubmit} method="post" action="/login" className="mt-8 flex flex-col gap-5" noValidate={false}>
       <label className="block text-sm font-semibold text-ink">
         {t('auth.email')}
         <input

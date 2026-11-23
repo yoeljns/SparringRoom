@@ -2,8 +2,9 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { ClassifiedScan } from '@dayson/domain';
-import { t, tDynamic } from '@/i18n';
+import { t } from '@/i18n';
 import type { LogScan } from '@/lib/data/scan-log';
+import { errorText } from '@/lib/floor/errors';
 import { feedback } from '@/lib/floor/feedback';
 import {
   SOURCE_PALLET_DESTINATION,
@@ -37,6 +38,10 @@ export interface ScanFlowProps {
   onComplete: (values: Record<string, StepValue>) => void | Promise<void>;
   logScan?: LogScan;
   allowManual?: boolean;
+  /** What the task expects at a step (e.g. the lane code), shown under its label. */
+  hints?: Record<string, string | undefined>;
+  /** Hide the green "done" row when the screen shows its own result. */
+  hideDone?: boolean;
 }
 
 function refusalText(refusal: FlowRefusal): string {
@@ -51,7 +56,16 @@ function refusalText(refusal: FlowRefusal): string {
  * Reusable scan confirmation: shows which scan is expected, checks the class
  * of each scan and refuses the wrong one with a tone and a red banner.
  */
-export function ScanFlow({ steps = SOURCE_PALLET_DESTINATION, context, validate, onComplete, logScan, allowManual = true }: ScanFlowProps) {
+export function ScanFlow({
+  steps = SOURCE_PALLET_DESTINATION,
+  context,
+  validate,
+  onComplete,
+  logScan,
+  allowManual = true,
+  hints,
+  hideDone = false,
+}: ScanFlowProps) {
   const [state, setState] = useState<FlowState>(initialFlowState);
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(0);
@@ -69,10 +83,11 @@ export function ScanFlow({ steps = SOURCE_PALLET_DESTINATION, context, validate,
     (scan: ClassifiedScan, meta: ScanMeta, refusal: FlowRefusal, logReason: string) => {
       feedback('refused');
       setShake((n) => n + 1);
-      commit(refuseScan(stateRef.current, refusal));
-      log(scan, meta, logReason);
+      const current = stateRef.current;
+      commit(refuseScan(current, refusal));
+      log(scan, meta, logReason, steps[current.index]?.key);
     },
-    [log, commit],
+    [log, commit, steps],
   );
 
   const handleScan = useCallback(
@@ -101,7 +116,7 @@ export function ScanFlow({ steps = SOURCE_PALLET_DESTINATION, context, validate,
           setBusy(false);
         }
         if (!result.ok) {
-          const detail = result.code ? tDynamic(`errors.${result.code}`, 'errors.UNKNOWN') : result.message;
+          const detail = result.code ? errorText(result.code, result.message) : result.message;
           refuse(scan, meta, { reason: 'rejected', message: 'scan.refused.rejected', detail }, result.code ?? 'rejected');
           return;
         }
@@ -109,9 +124,10 @@ export function ScanFlow({ steps = SOURCE_PALLET_DESTINATION, context, validate,
       const next = acceptScan(steps, current, scan, meta, new Date().toISOString());
       commit(next);
       feedback('accepted');
+      log(scan, meta, 'accepted', step.key);
       if (next.done) await onComplete(next.values);
     },
-    [steps, validate, onComplete, refuse, commit],
+    [steps, validate, onComplete, refuse, commit, log],
   );
 
   const restart = () => commit(initialFlowState());
@@ -147,6 +163,8 @@ export function ScanFlow({ steps = SOURCE_PALLET_DESTINATION, context, validate,
                     {describeScan(value.scan)}
                     {value.method === 'manual' ? ` (${t('scan.method.manual')})` : ''}
                   </span>
+                ) : hints?.[step.key] ? (
+                  <span className="block truncate font-mono text-base font-semibold opacity-90">{hints[step.key]}</span>
                 ) : isCurrent ? (
                   <span className="block text-sm font-medium opacity-80">{t('scan.waiting')}</span>
                 ) : null}
@@ -169,7 +187,7 @@ export function ScanFlow({ steps = SOURCE_PALLET_DESTINATION, context, validate,
       ) : null}
 
       {state.done ? (
-        <div role="status" className="flex items-center gap-3 rounded-xl bg-ok-soft px-4 py-3 text-lg font-bold text-ok">
+        hideDone ? null : <div role="status" className="flex items-center gap-3 rounded-xl bg-ok-soft px-4 py-3 text-lg font-bold text-ok">
           <Icon name="check" size={28} />
           {t('flow.done')}
         </div>

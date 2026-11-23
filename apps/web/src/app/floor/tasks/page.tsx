@@ -1,9 +1,14 @@
 import type { Metadata } from 'next';
-import { FloorPlaceholder } from '@/components/floor/FloorPlaceholder';
+import { FloorPage } from '@/components/floor/ui';
 import { t } from '@/i18n';
+import { TasksScreen } from './TasksScreen';
 
 export const metadata: Metadata = { title: t('floor.screens.tasks') };
 
 export default function Page() {
-  return <FloorPlaceholder screen="tasks" />;
+  return (
+    <FloorPage screen="floor.tasks">
+      <TasksScreen />
+    </FloorPage>
+  );
 }

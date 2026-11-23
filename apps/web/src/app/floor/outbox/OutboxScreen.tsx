@@ -2,8 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { formatTime, t, tDynamic } from '@/i18n';
+import { errorText } from '@/lib/floor/errors';
 import { useOutbox } from '@/lib/floor/outbox/react';
 import type { OutboxCommand, RejectedCommand } from '@/lib/floor/outbox/types';
+
+/** Turkish name of a queued command: the rpc_floor command, or the rpc itself. */
+function commandLabel(c: OutboxCommand): string {
+  const cmd = c.rpc === 'rpc_floor' && typeof c.args.p_cmd === 'string' ? c.args.p_cmd : c.rpc;
+  const args = (c.args.p_args ?? {}) as Record<string, unknown>;
+  const what = typeof args.pallet_serial === 'string' ? ` · ${args.pallet_serial.slice(-6)}` : '';
+  return tDynamic(`floor.cmd.${cmd}`, 'floor.cmd.other') + what;
+}
 
 /** Queue and rejected list. Rejected commands are shown to the operator, never retried. */
 export function OutboxScreen() {
@@ -51,7 +60,7 @@ export function OutboxScreen() {
             {queue.map((c) => (
               <li key={c.client_uuid} className="rounded-lg bg-surface px-3 py-2">
                 <p className="flex items-baseline justify-between gap-2">
-                  <span className="truncate font-mono text-base font-bold">{c.rpc}</span>
+                  <span className="truncate text-base font-bold">{commandLabel(c)}</span>
                   <span className="shrink-0 text-sm tabular-nums text-muted">{formatTime(c.event_at)}</span>
                 </p>
                 {c.attempts > 0 ? <p className="text-sm text-ink-soft">{t('outbox.attempts', { count: c.attempts })}</p> : null}
@@ -74,10 +83,10 @@ export function OutboxScreen() {
               {refused.map((c) => (
                 <li key={c.client_uuid} className={`rounded-lg bg-paper px-3 py-2 ${c.acknowledged_at ? 'opacity-60' : ''}`}>
                   <p className="flex items-baseline justify-between gap-2">
-                    <span className="truncate font-mono text-base font-bold">{c.rpc}</span>
+                    <span className="truncate text-base font-bold">{commandLabel(c)}</span>
                     <span className="shrink-0 text-sm tabular-nums text-muted">{formatTime(c.event_at)}</span>
                   </p>
-                  <p className="text-lg font-bold text-brand-dark">{tDynamic(`errors.${c.error_code}`, 'errors.UNKNOWN')}</p>
+                  <p className="text-lg font-bold text-brand-dark">{errorText(c.error_code, c.error_message)}</p>
                   <p className="break-words text-sm text-ink-soft">
                     {c.error_code} · {c.error_message}
                   </p>
